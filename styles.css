@@ -765,9 +765,11 @@ sup { font-size: 0.72em; line-height: 0; }
   border-radius: 3px;
   overflow: hidden;
 }
-.video-card video {
+.video-card img {
   width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   background: #000;
   display: block;
 }
@@ -877,20 +879,34 @@ sup { font-size: 0.72em; line-height: 0; }
   }
   .byline .tag { white-space: nowrap; }
 
+  /* desktop: face crop keeps its natural portrait aspect (288:322).
+     .motivation-crop gets an explicit width so the label, photo, and caption
+     all match the photo's derived width. The width formula makes the photo's
+     height equal the scene image's height (scene aspect 16:6, image aspect 0.894). */
   .motivation-grid {
-    grid-template-columns: 1.55fr 1fr;
+    display: flex;
+    align-items: flex-start;
     gap: 20px;
-    align-items: start;
   }
-  .motivation-crop { display: flex; flex-direction: column; }
-  /* desktop: match scene height better by using a landscape aspect, and
-     cover-crop the portrait face image with a face-centered offset */
+  .motivation-hero {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .motivation-hero .hero-photo { aspect-ratio: 16 / 6; }
+  .motivation-crop {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: clamp(160px, calc((100vw - 116px) * 0.894 / 3.56), 320px);
+  }
   .motivation-crop .crop-photo {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 288 / 322;
   }
   .motivation-crop .crop-photo img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    object-position: center 42%;
+    object-position: center center;
   }
 
   .signal-grid {
