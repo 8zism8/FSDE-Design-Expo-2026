@@ -1,0 +1,17 @@
+# AI / agent working notes — not for public repo
+HANDOFF.md
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor junk
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local experiments / scratch
+/tmp/
+*.log

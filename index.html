@@ -24,6 +24,7 @@
 <!-- ===== 00 · MASTHEAD ===== -->
 <header class="masthead">
   <div class="inset">
+    <span class="masthead-rule" aria-hidden="true"></span>
     <div class="eyebrow">
       <span class="dot"></span>FSDE · Student Design Expo 2026 · Graduate Studies
     </div>
@@ -37,10 +38,18 @@
 
     <div class="byline">
       <div class="who">
-        <b>M. Soroush Izadan</b>
-        <span class="sep">·</span>
-        <span>Supervisor: Dr. Trung D. Ngo</span>
-        <div class="affil">Faculty of Sustainable Design Engineering &nbsp;·&nbsp; University of Prince Edward Island</div>
+        <div class="byline-row">
+          <span class="role">Author</span>
+          <b>M. Soroush Izadan</b>
+        </div>
+        <div class="byline-row">
+          <span class="role">Supervisor</span>
+          <span>Dr. Trung D. Ngo</span>
+        </div>
+        <div class="byline-row affil">
+          <span class="role">Faculty</span>
+          Faculty of Sustainable Design Engineering, University of Prince Edward Island
+        </div>
       </div>
       <div class="tag">Late-breaking findings · 2026</div>
     </div>
@@ -52,14 +61,16 @@
 <!-- ===== 01 · TL;DR ===== -->
 <section class="section tldr">
   <div class="inset-narrow">
-    <div class="section-num"><span class="bar"></span>TL;DR</div>
-    <p class="lede">
-      A service robot reads a face from whatever vantage point it happens to have. When the person is far away
-      or turned aside, the face region shrinks to a handful of pixels, yet the recognition model keeps returning
-      <em>confident</em> answers. This work builds a geometry&#8209;aware reliability signal so the robot can tell
-      <em>why</em> its own reading might be wrong, and then <b>trust it</b>, <b>reposition</b>, or <b>fall back</b>
-      to other cues.
-    </p>
+    <div class="section-num"><span class="bar"></span>Abstract &nbsp;·&nbsp; TL;DR</div>
+    <div class="tldr-block">
+      <p class="lede">
+        A service robot reads a face from whatever vantage point it happens to have. When the person is far away
+        or turned aside, the face region shrinks to a handful of pixels, yet the recognition model keeps returning
+        <em>confident</em> answers. This work builds a geometry&#8209;aware reliability signal so the robot can tell
+        <em>why</em> its own reading might be wrong, and then <b>trust it</b>, <b>reposition</b>, or <b>fall back</b>
+        to other cues.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -76,7 +87,8 @@
           <div class="scene-label">@ 8 m · 30°</div>
         </div>
         <figcaption>
-          <b>Scene.</b> A single subject at a measured distance and yaw angle in an indoor service&#8209;robot scenario.
+          <span class="fig-tag">Fig. 0a · Scene</span>
+          A single subject at a measured distance and yaw angle in an indoor service&#8209;robot scenario.
           The green box marks the face region passed to the facial&#8209;expression recognition (FER) model.
         </figcaption>
       </figure>
@@ -88,6 +100,7 @@
           <div class="softmax">softmax: <span class="sm">Happy</span> · 55%</div>
         </div>
         <figcaption>
+          <span class="fig-tag">Fig. 0b · Crop</span>
           ~24&nbsp;×&nbsp;28 px face crop, magnified ~12×. No occlusion. The degradation is purely geometric.
         </figcaption>
       </figure>
@@ -111,6 +124,7 @@
       <article class="signal signal-a">
         <div class="signal-symbol">s</div>
         <div class="signal-body">
+          <span class="signal-sublabel">Geometry</span>
           <h3>Geometry reliability</h3>
           <p>Can this viewpoint even support recognition? Computed from distance &amp; yaw <em>before</em> capture.</p>
         </div>
@@ -119,6 +133,7 @@
       <article class="signal signal-b">
         <div class="signal-symbol">C<sub>det</sub></div>
         <div class="signal-body">
+          <span class="signal-sublabel">Detection</span>
           <h3>Face detection confidence</h3>
           <p>Is a face observable in this frame? Isolates environmental failure: mask, glare, or occlusion.</p>
         </div>
@@ -127,6 +142,7 @@
       <article class="signal signal-c">
         <div class="signal-symbol">C<sub>fer</sub></div>
         <div class="signal-body">
+          <span class="signal-sublabel">Expression</span>
           <h3>FER softmax</h3>
           <p>Interpretable only <em>after</em> the first two pass; at that point it reads affect rather than artifact.</p>
         </div>
@@ -170,16 +186,20 @@
         <div class="compare-panel panel-bad">
           <div class="verdict">
             <span class="verdict-badge bad">✕ Bad model</span>
-            <span class="verdict-note">Marginal: no interaction term</span>
+            <span class="verdict-note">Marginal, no interaction term</span>
           </div>
-          <img src="assets/light_marginal.png" alt="Polar heatmap of the marginal reliability model. Green is confined to a narrow central band around zero yaw; red dominates the rest of the surface, even at short distance.">
+          <a class="data-link" href="assets/light_marginal.png" target="_blank" rel="noopener" aria-label="Open full-resolution marginal model heatmap in a new tab">
+            <img src="assets/light_marginal.png" alt="Polar heatmap of the marginal reliability model. Green is confined to a narrow central band around zero yaw; red dominates the rest of the surface, even at short distance.">
+          </a>
         </div>
         <div class="compare-panel panel-good">
           <div class="verdict">
             <span class="verdict-badge good">✓ Good model</span>
-            <span class="verdict-note">Interaction: the one we fit</span>
+            <span class="verdict-note">Interaction, the one we fit</span>
           </div>
-          <img src="assets/light_interaction.png" alt="Polar heatmap of the interaction reliability model. A wide green 'trust cone' extends out to 8 m near zero yaw, narrowing as yaw increases; red fills the far-yaw region.">
+          <a class="data-link" href="assets/light_interaction.png" target="_blank" rel="noopener" aria-label="Open full-resolution interaction model heatmap in a new tab">
+            <img src="assets/light_interaction.png" alt="Polar heatmap of the interaction reliability model. A wide green 'trust cone' extends out to 8 m near zero yaw, narrowing as yaw increases; red fills the far-yaw region.">
+          </a>
         </div>
       </div>
       <figcaption>
@@ -192,7 +212,9 @@
     </figure>
 
     <figure class="fig-vector">
-      <img src="assets/effective_slope.png" alt="Two-panel figure. Left: contour plot of the reliability score s(d, yaw) with gradient arrows pointing towards higher reliability. Right: the effective distance sensitivity (β1 plus β3·yaw-squared) plotted against yaw, showing that the penalty for each additional metre of distance grows sharply with yaw angle.">
+      <a class="data-link" href="assets/effective_slope.png" target="_blank" rel="noopener" aria-label="Open full-resolution effective slope figure in a new tab">
+        <img src="assets/effective_slope.png" alt="Two-panel figure. Left: contour plot of the reliability score s(d, yaw) with gradient arrows pointing towards higher reliability. Right: the effective distance sensitivity (β1 plus β3·yaw-squared) plotted against yaw, showing that the penalty for each additional metre of distance grows sharply with yaw angle.">
+      </a>
       <figcaption>
         <b>Fig. 2. Why the robot should turn before it steps.</b> Left: the reliability contours and gradient field &nabla;s.
         Moving <em>along</em> the contours (i.e., reducing yaw first) almost always beats stepping closer along a fixed yaw.
@@ -209,12 +231,12 @@
     <div class="section-num"><span class="bar"></span>05 &nbsp;·&nbsp; The model</div>
     <h2 class="sec-title">A 4-parameter GLM with an explicit&nbsp;<em>interaction</em>&nbsp;term.</h2>
 
-    <div class="eq-box">
-      logit&nbsp;A(d, θ)&nbsp;=&nbsp;
-      β<span class="subdued">₀</span>
-      &nbsp;+&nbsp; β<span class="subdued">₁</span>·d
-      &nbsp;+&nbsp; β<span class="subdued">₂</span>·θ²
-      &nbsp;+&nbsp; <span class="hi">β<span>₃</span>·d·θ²</span>
+    <div class="eq-box" aria-label="logit A of d and theta equals beta zero plus beta one times d plus beta two times theta squared plus beta three times d times theta squared">
+      <span class="eq-term">logit&nbsp;A(d,&nbsp;θ)&nbsp;=</span>
+      <span class="eq-term">β<span class="subdued">₀</span></span>
+      <span class="eq-term">+&nbsp;β<span class="subdued">₁</span>·d</span>
+      <span class="eq-term">+&nbsp;β<span class="subdued">₂</span>·θ²</span>
+      <span class="eq-term hi">+&nbsp;β₃·d·θ²</span>
     </div>
 
     <p class="eq-caption">
@@ -242,7 +264,9 @@
     </div>
 
     <figure class="fig-vector fig-accuracy">
-      <img src="assets/accuracy_surface.png" alt="Two heatmaps side by side. Observed accuracy (left) and predicted accuracy from the GLM (right), both as a function of distance (2 to 8 metres) and yaw angle (5 to 85 degrees). Green cells at short distance and low yaw, red cells at 8 metres and 85 degrees. R-squared 0.962.">
+      <a class="data-link" href="assets/accuracy_surface.png" target="_blank" rel="noopener" aria-label="Open full-resolution accuracy surface figure in a new tab">
+        <img src="assets/accuracy_surface.png" alt="Two heatmaps side by side. Observed accuracy (left) and predicted accuracy from the GLM (right), both as a function of distance (2 to 8 metres) and yaw angle (5 to 85 degrees). Green cells at short distance and low yaw, red cells at 8 metres and 85 degrees. R-squared 0.962.">
+      </a>
       <figcaption>
         <b>Fig. 3. Observed vs. predicted FER accuracy across the (d, θ) grid.</b>
         The four-parameter GLM reproduces the empirical surface at R² = 0.962, including the
@@ -263,43 +287,46 @@
 
       <article class="policy-case case-trust">
         <div class="policy-head">
-          <div class="policy-cond">
-            <span class="ok">s high</span><br>
-            <span class="ok">C<sub>det</sub> high</span>
+          <div class="policy-chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#667E3A" stroke-width="2.2">
+              <path d="M4 12l5 5L20 6"/>
+            </svg>
           </div>
-          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#667E3A" stroke-width="2.2" aria-hidden="true">
-            <path d="M4 12l5 5L20 6"/>
-          </svg>
+          <div class="policy-heading">
+            <h3>Trust the reading.</h3>
+            <span class="policy-cond"><span class="ok">s high</span><span class="bullet">·</span><span class="ok">C<sub>det</sub> high</span></span>
+          </div>
         </div>
-        <h3>Trust the reading.</h3>
         <p>Genuine expression. Incorporate it into the social-reasoning loop.</p>
       </article>
 
       <article class="policy-case case-move">
         <div class="policy-head">
-          <div class="policy-cond">
-            <span class="bad">s low</span><br>
-            <span class="muted">(any C<sub>det</sub>)</span>
+          <div class="policy-chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#D89B1C" stroke-width="2.2">
+              <path d="M4 12h14M12 6l6 6-6 6"/>
+            </svg>
           </div>
-          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#D89B1C" stroke-width="2.2" aria-hidden="true">
-            <path d="M4 12h14M12 6l6 6-6 6"/>
-          </svg>
+          <div class="policy-heading">
+            <h3>Reposition.</h3>
+            <span class="policy-cond"><span class="bad">s low</span><span class="bullet">·</span><span class="muted">any C<sub>det</sub></span></span>
+          </div>
         </div>
-        <h3>Reposition.</h3>
         <p>Follow &nabla;s: circle toward a frontal view <em>before</em> closing distance.</p>
       </article>
 
       <article class="policy-case case-fallback">
         <div class="policy-head">
-          <div class="policy-cond">
-            <span class="ok">s high</span><br>
-            <span class="bad">C<sub>det</sub> low</span>
+          <div class="policy-chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8C2F1D" stroke-width="2.2">
+              <path d="M12 9v4m0 4h.01M10.3 3.86l-8.1 14.02A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.7-3.12l-8.1-14.02a2 2 0 0 0-3.4 0z"/>
+            </svg>
           </div>
-          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#8C2F1D" stroke-width="2.2" aria-hidden="true">
-            <path d="M12 9v4m0 4h.01M10.3 3.86l-8.1 14.02A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.7-3.12l-8.1-14.02a2 2 0 0 0-3.4 0z"/>
-          </svg>
+          <div class="policy-heading">
+            <h3>Fall back.</h3>
+            <span class="policy-cond"><span class="ok">s high</span><span class="bullet">·</span><span class="bad">C<sub>det</sub> low</span></span>
+          </div>
         </div>
-        <h3>Fall back.</h3>
         <p>Environmental failure. Use alternative cues or a verbal probe.</p>
       </article>
 
@@ -338,6 +365,7 @@
         </div>
       </object>
       <div class="paper-mobile">
+        <span class="paper-chip">Preliminary manuscript · 2026</span>
         <img src="assets/manuscript_thumb.png" alt="Thumbnail of the first page of the preliminary manuscript.">
       </div>
 
@@ -346,7 +374,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/>
           </svg>
-          Download the manuscript (PDF · 475&nbsp;KB)
+          <span class="btn-label-short">Download PDF</span>
+          <span class="btn-label-full">Download the manuscript (PDF · 475&nbsp;KB)</span>
         </a>
         <a class="btn-secondary" href="files/SI_PreliminaryManuscript_Expo2026.pdf" target="_blank" rel="noopener">
           Open in a new tab ↗
@@ -372,7 +401,10 @@
 
     <div class="video-grid">
       <figure class="video-card">
-        <img src="assets/video_still_8h.png" alt="Lab setup for the 8 metre head-on recording. The subject sits in a swivel chair facing the camera at the far end of the space.">
+        <div class="video-frame">
+          <img src="assets/video_still_8h.png" alt="Lab setup for the 8 metre head-on recording. The subject sits in a swivel chair facing the camera at the far end of the space.">
+          <span class="video-overlay"><b>8 m</b> · 0° head&#8209;on</span>
+        </div>
         <figcaption>
           <div class="video-meta"><b>8 m · 0° yaw</b> &nbsp;·&nbsp; head&#8209;on</div>
           <div class="video-sub">Face region large enough to be comfortably in-distribution for the FER model.</div>
@@ -380,7 +412,10 @@
       </figure>
 
       <figure class="video-card">
-        <img src="assets/video_still_6_60h.png" alt="Lab setup for the 6 metre, 60 degree yaw recording. The subject sits in the same chair but rotated so the face is seen obliquely.">
+        <div class="video-frame">
+          <img src="assets/video_still_6_60h.png" alt="Lab setup for the 6 metre, 60 degree yaw recording. The subject sits in the same chair but rotated so the face is seen obliquely.">
+          <span class="video-overlay"><b>6 m</b> · 60° oblique</span>
+        </div>
         <figcaption>
           <div class="video-meta"><b>6 m · 60° yaw</b> &nbsp;·&nbsp; oblique</div>
           <div class="video-sub">Self&#8209;occlusion compounds with reduced pixel count; the model's confidence becomes misleading.</div>
