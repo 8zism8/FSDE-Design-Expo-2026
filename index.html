@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Can a robot trust its own eyes? — FSDE Design Expo 2026</title>
+<meta name="description" content="A companion page to M. Soroush Izadan's FSDE Design Expo 2026 poster. A social robot learns to self-assess when its viewpoint makes a face reading unreliable, and act on that assessment.">
+<meta name="theme-color" content="#8C2F1D">
+<meta property="og:title" content="Can a robot trust its own eyes?">
+<meta property="og:description" content="Perceptual self-assessment for social robots. FSDE Design Expo 2026 · UPEI.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="assets/scene_8m_v2.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== decorative left spine (desktop only) ===== -->
+<div class="edge-spine" aria-hidden="true"></div>
+
+<!-- ===== 00 · MASTHEAD ===== -->
+<header class="masthead">
+  <div class="inset">
+    <div class="eyebrow">
+      <span class="dot"></span>FSDE · Student Design Expo 2026 · Graduate Studies
+    </div>
+
+    <h1 class="display-title">
+      Can a robot trust its&nbsp;<em>own&nbsp;eyes?</em>
+    </h1>
+    <p class="deck">
+      Teaching a social robot to notice when it is poorly positioned to read a face — and to act on that self&#8209;assessment.
+    </p>
+
+    <div class="byline">
+      <div class="who">
+        <b>M. Soroush Izadan</b>
+        <span class="sep">·</span>
+        <span>Supervisor: Dr. Trung D. Ngo</span>
+        <div class="affil">Faculty of Sustainable Design Engineering &nbsp;·&nbsp; University of Prince Edward Island</div>
+      </div>
+      <div class="tag">Late-breaking findings · 2026</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== 01 · TL;DR ===== -->
+<section class="section tldr">
+  <div class="inset-narrow">
+    <div class="section-num"><span class="bar"></span>TL;DR</div>
+    <p class="lede">
+      A service robot reads a face from whatever vantage point it happens to have. When the person is far away
+      or turned aside, the face region shrinks to a handful of pixels — yet the recognition model keeps returning
+      <em>confident</em> answers. This work builds a geometry&#8209;aware reliability signal so the robot can tell
+      <em>why</em> its own reading might be wrong, and then <b>trust it</b>, <b>reposition</b>, or <b>fall back</b>
+      to other cues.
+    </p>
+  </div>
+</section>
+
+<!-- ===== 02 · MOTIVATION ===== -->
+<section class="section motivation">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>01 &nbsp;·&nbsp; The failure mode</div>
+    <h2 class="sec-title">What does a robot see when the person is <em>eight metres away?</em></h2>
+
+    <div class="motivation-grid">
+      <figure class="motivation-hero">
+        <div class="hero-photo">
+          <img src="assets/scene_8m_v2.png" alt="A lab scene with a person standing about eight metres from the camera. A gold rectangle marks the full person; a smaller green rectangle marks the face region passed to the recognition model." loading="lazy">
+          <div class="scene-label">@ 8 m · 30°</div>
+        </div>
+        <figcaption>
+          <b>Scene.</b> A single subject at a measured distance and yaw angle in an indoor service&#8209;robot scenario.
+          The green box marks the face region passed to the facial&#8209;expression recognition (FER) model.
+        </figcaption>
+      </figure>
+
+      <figure class="motivation-crop">
+        <div class="crop-label">What the model sees</div>
+        <div class="crop-photo">
+          <img src="assets/face_8m_blowup.png" alt="A blurry, low-resolution face crop extracted from the 8 metre scene, roughly twenty-four pixels wide.">
+          <div class="softmax">softmax: <span class="sm">Happy</span> · 55%</div>
+        </div>
+        <figcaption>
+          ~24&nbsp;×&nbsp;28 px face crop, magnified ~12×. No occlusion. The degradation is purely geometric.
+        </figcaption>
+      </figure>
+    </div>
+
+    <blockquote class="pullquote">
+      The model still outputs a <b>confident label</b>. But the face is ~24 pixels wide, oblique, self&#8209;occluded.
+      Was that a smile, a grimace, or nothing at all? The robot <b>has no way to know that its own perception
+      is unreliable.</b>
+    </blockquote>
+  </div>
+</section>
+
+<!-- ===== 03 · THREE SIGNALS ===== -->
+<section class="section signals">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>02 &nbsp;·&nbsp; Three-signal decomposition</div>
+    <h2 class="sec-title">One confidence number hides <em>three different failures.</em></h2>
+
+    <div class="signal-grid">
+      <article class="signal signal-a">
+        <div class="signal-symbol">s</div>
+        <div class="signal-body">
+          <h3>Geometry reliability</h3>
+          <p>Can this viewpoint even support recognition? Computed from distance &amp; yaw <em>before</em> capture.</p>
+        </div>
+      </article>
+
+      <article class="signal signal-b">
+        <div class="signal-symbol">C<sub>det</sub></div>
+        <div class="signal-body">
+          <h3>Face detection confidence</h3>
+          <p>Is a face observable in this frame? Isolates environmental failure &mdash; mask, glare, occlusion.</p>
+        </div>
+      </article>
+
+      <article class="signal signal-c">
+        <div class="signal-symbol">C<sub>fer</sub></div>
+        <div class="signal-body">
+          <h3>FER softmax</h3>
+          <p>Interpretable only <em>after</em> the first two pass; at that point it reads affect rather than artifact.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 · KEY INSIGHT ===== -->
+<section class="section insight">
+  <div class="inset-narrow">
+    <div class="section-num"><span class="bar"></span>03 &nbsp;·&nbsp; The key insight</div>
+    <h2 class="sec-title">Distance and yaw don't degrade independently. They&nbsp;<em>compound.</em></h2>
+
+    <div class="insight-grid">
+      <p>
+        At <b>2&nbsp;m</b>, the pixel budget comfortably absorbs the self-occlusion that comes with an
+        oblique view. Accuracy stays near&#8209;ceiling at every angle we tested.
+      </p>
+      <p>
+        At <b>8&nbsp;m</b>, the same 60° of yaw becomes catastrophic. The face can no longer spare
+        the information loss — and the softmax gives no warning.
+      </p>
+      <p>
+        We call this the <span class="hi">information capacity effect</span>. It makes a geometry&#8209;conditioned
+        reliability score both <em>possible</em> and <em>necessary</em>. Prior work on situated FER did not
+        quantitatively model this coupling.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 · RELIABILITY SURFACE ===== -->
+<section class="section surface">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>04 &nbsp;·&nbsp; Reliability surface <span class="mono-inline">s(d, θ)</span></div>
+    <h2 class="sec-title">A map of <em>when</em> a reading is trustworthy.</h2>
+
+    <figure class="fig-polar">
+      <img src="assets/polar_reliability.png" alt="Polar heatmap of the reliability score s as a function of distance and yaw. Green near the centre indicates trustworthy viewpoints; red at the outer-upper edge indicates blind spots.">
+      <figcaption>
+        <b>Fig. 1 — Reliability score s(d, θ) as a polar surface.</b>
+        Green wedges mark viewpoints the robot can trust; gold wedges are borderline; red wedges
+        are blind spots where the face is no longer informative enough for FER to be meaningful.
+      </figcaption>
+    </figure>
+
+    <figure class="fig-vector">
+      <img src="assets/effective_slope.png" alt="Two-panel figure. Left: contour plot of the reliability score s(d, yaw) with gradient arrows pointing towards higher reliability. Right: the effective distance sensitivity (β1 plus β3·yaw-squared) plotted against yaw, showing that the penalty for each additional metre of distance grows sharply with yaw angle.">
+      <figcaption>
+        <b>Fig. 2 — Why the robot should turn before it steps.</b> Left: the reliability contours and gradient field &nabla;s &mdash;
+        moving <em>along</em> the contours (i.e., reducing yaw first) almost always beats stepping closer along a fixed yaw.
+        Right: the effective distance slope grows sharply with yaw, quantifying the information&#8209;capacity effect.
+        <a class="pdf-link" href="files/effective_slope.pdf" target="_blank" rel="noopener">Download PDF ↗</a>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== 06 · MODEL ===== -->
+<section class="section model">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>05 &nbsp;·&nbsp; The model</div>
+    <h2 class="sec-title">A 4-parameter GLM with an explicit&nbsp;<em>interaction</em>&nbsp;term.</h2>
+
+    <div class="eq-box">
+      logit&nbsp;A(d, θ)&nbsp;=&nbsp;
+      β<span class="subdued">₀</span>
+      &nbsp;+&nbsp; β<span class="subdued">₁</span>·d
+      &nbsp;+&nbsp; β<span class="subdued">₂</span>·θ²
+      &nbsp;+&nbsp; <span class="hi">β<span>₃</span>·d·θ²</span>
+    </div>
+
+    <p class="eq-caption">
+      The bold term is the whole story: the penalty the robot pays for being another metre further away
+      grows sharply with how far off-axis the face is turned. Four parameters, fit on 63 (distance, yaw) cells.
+    </p>
+
+    <div class="stat-badges">
+      <div class="stat-badge">
+        <div class="num">R<span class="sup">2</span>&nbsp;0.962</div>
+        <div class="lbl">Cell fit,<br>63 conditions</div>
+      </div>
+      <div class="stat-badge">
+        <div class="num">0.73<span class="sup">pp</span></div>
+        <div class="lbl">Calibration<br>error (ECE)</div>
+      </div>
+      <div class="stat-badge">
+        <div class="num">50,863</div>
+        <div class="lbl">Frames across<br>2 sessions</div>
+      </div>
+      <div class="stat-badge">
+        <div class="num">+37<span class="sup">%</span></div>
+        <div class="lbl">Yaw penalty,<br>2 m → 8 m</div>
+      </div>
+    </div>
+
+    <figure class="fig-vector fig-accuracy">
+      <img src="assets/accuracy_surface.png" alt="Two heatmaps side by side. Observed accuracy (left) and predicted accuracy from the GLM (right), both as a function of distance (2 to 8 metres) and yaw angle (5 to 85 degrees). Green cells at short distance and low yaw, red cells at 8 metres and 85 degrees. R-squared 0.962.">
+      <figcaption>
+        <b>Fig. 3 — Observed vs. predicted FER accuracy across the (d, θ) grid.</b>
+        The four-parameter GLM reproduces the empirical surface at R² = 0.962, including the
+        sharp drop-off in the upper-right corner where distance and yaw compound.
+        <a class="pdf-link" href="files/accuracy_surface.pdf" target="_blank" rel="noopener">Download PDF ↗</a>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== 07 · POLICY ===== -->
+<section class="section policy">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>06 &nbsp;·&nbsp; Interaction readiness</div>
+    <h2 class="sec-title">The robot now knows&nbsp;<em>why</em>&nbsp;it is uncertain.</h2>
+
+    <div class="policy-flow">
+
+      <article class="policy-case case-trust">
+        <div class="policy-head">
+          <div class="policy-cond">
+            <span class="ok">s high</span><br>
+            <span class="ok">C<sub>det</sub> high</span>
+          </div>
+          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#667E3A" stroke-width="2.2" aria-hidden="true">
+            <path d="M4 12l5 5L20 6"/>
+          </svg>
+        </div>
+        <h3>Trust the reading.</h3>
+        <p>Genuine expression. Incorporate it into the social-reasoning loop.</p>
+      </article>
+
+      <article class="policy-case case-move">
+        <div class="policy-head">
+          <div class="policy-cond">
+            <span class="bad">s low</span><br>
+            <span class="muted">(any C<sub>det</sub>)</span>
+          </div>
+          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#D89B1C" stroke-width="2.2" aria-hidden="true">
+            <path d="M4 12h14M12 6l6 6-6 6"/>
+          </svg>
+        </div>
+        <h3>Reposition.</h3>
+        <p>Follow &nabla;s: circle toward a frontal view <em>before</em> closing distance.</p>
+      </article>
+
+      <article class="policy-case case-fallback">
+        <div class="policy-head">
+          <div class="policy-cond">
+            <span class="ok">s high</span><br>
+            <span class="bad">C<sub>det</sub> low</span>
+          </div>
+          <svg class="policy-icon" viewBox="0 0 24 24" fill="none" stroke="#8C2F1D" stroke-width="2.2" aria-hidden="true">
+            <path d="M12 9v4m0 4h.01M10.3 3.86l-8.1 14.02A2 2 0 0 0 3.9 21h16.2a2 2 0 0 0 1.7-3.12l-8.1-14.02a2 2 0 0 0-3.4 0z"/>
+          </svg>
+        </div>
+        <h3>Fall back.</h3>
+        <p>Environmental failure. Use alternative cues or a verbal probe.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 08 · WHAT'S NEXT ===== -->
+<section class="section whats-next">
+  <div class="inset-narrow">
+    <div class="section-num"><span class="bar"></span>07 &nbsp;·&nbsp; What's next</div>
+    <ul class="next-list">
+      <li>Multi&#8209;participant validation with dense motion&#8209;capture yaw ground truth.</li>
+      <li>Live deployment: <span class="mono-inline">&nabla;s</span> as a social&#8209;navigation costmap layer.</li>
+      <li>Extension beyond yaw to pitch and roll for head-pose-rich interactions.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 09 · MANUSCRIPT ===== -->
+<section class="section paper">
+  <div class="inset">
+    <div class="section-num"><span class="bar"></span>08 &nbsp;·&nbsp; Read the preliminary manuscript</div>
+    <h2 class="sec-title">The full writeup — methods, dataset, and validation.</h2>
+
+    <p class="paper-note">
+      A working draft of the preliminary manuscript is available for reading or download below.
+      It contains the dataset description, preprocessing pipeline, GLM fit, and the derivation of the policy
+      thresholds. Expect a fuller treatment to appear post&#8209;Expo.
+    </p>
+
+    <div class="paper-block">
+      <object class="paper-embed" data="files/SI_PreliminaryManuscript_Expo2026.pdf#toolbar=0&amp;navpanes=0" type="application/pdf">
+        <div class="paper-fallback">
+          <img src="assets/manuscript_thumb.png" alt="Thumbnail of the first page of the preliminary manuscript." loading="lazy">
+        </div>
+      </object>
+      <div class="paper-mobile">
+        <img src="assets/manuscript_thumb.png" alt="Thumbnail of the first page of the preliminary manuscript." loading="lazy">
+      </div>
+
+      <div class="paper-actions">
+        <a class="btn-primary" href="files/SI_PreliminaryManuscript_Expo2026.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/>
+          </svg>
+          Download the manuscript (PDF · 475&nbsp;KB)
+        </a>
+        <a class="btn-secondary" href="files/SI_PreliminaryManuscript_Expo2026.pdf" target="_blank" rel="noopener">
+          Open in a new tab ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== 10 · BEHIND THE SCENES (DARK) ===== -->
+<section class="section behind-scenes">
+  <div class="inset">
+    <div class="section-num dark"><span class="bar"></span>09 &nbsp;·&nbsp; Raw experimental footage</div>
+    <h2 class="sec-title dark">Behind the scenes.</h2>
+
+    <p class="behind-note">
+      These are <b>single&#8209;subject pilot recordings</b> from the reliability&#8209;surface experiment.
+      They are unedited, not especially cinematic, and included here in the interest of transparency —
+      so you can see the two extremes of the (distance, yaw) grid in motion.
+    </p>
+
+    <div class="video-grid">
+      <figure class="video-card">
+        <video
+          controls
+          preload="metadata"
+          playsinline
+          poster="assets/video_poster_8h.jpg"
+          aria-label="Eight metre, head-on experimental recording.">
+          <source src="files/8h.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+          <a href="files/8h.mp4">Download the 8 m head-on clip</a>.
+        </video>
+        <figcaption>
+          <div class="video-meta"><b>8 m · 0° yaw</b> &nbsp;·&nbsp; head&#8209;on</div>
+          <div class="video-sub">Face region large enough to be comfortably in-distribution for the FER model.</div>
+        </figcaption>
+      </figure>
+
+      <figure class="video-card">
+        <video
+          controls
+          preload="metadata"
+          playsinline
+          poster="assets/video_poster_6_60h.jpg"
+          aria-label="Six metre, sixty degree yaw experimental recording.">
+          <source src="files/6_60h.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+          <a href="files/6_60h.mp4">Download the 6 m 60° clip</a>.
+        </video>
+        <figcaption>
+          <div class="video-meta"><b>6 m · 60° yaw</b> &nbsp;·&nbsp; oblique</div>
+          <div class="video-sub">Self&#8209;occlusion compounds with reduced pixel count — the model's confidence becomes misleading.</div>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="inset">
+    <div class="footer-grid">
+
+      <div class="foot-block">
+        <h4>About this project</h4>
+        <p>
+          <b>Decoding the Unspoken</b> — PhD project under Dr. Trung D. Ngo at the More-Than-One Lab,
+          Faculty of Sustainable Design Engineering, University of Prince Edward Island.
+        </p>
+      </div>
+
+      <div class="foot-block">
+        <h4>Acknowledgements</h4>
+        <p>
+          Thanks to the More-Than-One Lab, the Faculty of Sustainable Design Engineering, and
+          the FSDE Student Design Expo 2026 organisers.
+        </p>
+      </div>
+
+      <div class="foot-block foot-brand">
+        <div class="brand-lockup">
+          <div class="brand-mark">UPEI</div>
+          <div class="brand-rule"></div>
+          <div class="brand-sub">Faculty of Sustainable<br>Design Engineering</div>
+        </div>
+        <p class="foot-fineprint">
+          © 2026 M. Soroush Izadan. Late&#8209;breaking findings — manuscript in preparation.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
