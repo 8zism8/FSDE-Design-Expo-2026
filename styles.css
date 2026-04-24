@@ -821,10 +821,18 @@ sup { font-size: 0.72em; line-height: 0; }
   .motivation-grid {
     grid-template-columns: 1.55fr 1fr;
     gap: 20px;
-    align-items: stretch;
+    align-items: start;
   }
   .motivation-crop { display: flex; flex-direction: column; }
-  .motivation-crop .crop-photo { flex: 1 1 auto; min-height: 220px; }
+  /* desktop: match scene height better by using a landscape aspect, and
+     cover-crop the portrait face image with a face-centered offset */
+  .motivation-crop .crop-photo {
+    aspect-ratio: 16 / 10;
+  }
+  .motivation-crop .crop-photo img {
+    object-fit: cover;
+    object-position: center 42%;
+  }
 
   .signal-grid {
     grid-template-columns: 1fr 1fr 1fr;

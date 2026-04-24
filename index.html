@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Can a robot trust its own eyes? — FSDE Design Expo 2026</title>
+<title>Can a robot trust its own eyes? · FSDE Design Expo 2026</title>
 <meta name="description" content="A companion page to M. Soroush Izadan's FSDE Design Expo 2026 poster. A social robot learns to self-assess when its viewpoint makes a face reading unreliable, and act on that assessment.">
 <meta name="theme-color" content="#8C2F1D">
 <meta property="og:title" content="Can a robot trust its own eyes?">
@@ -32,7 +32,7 @@
       Can a robot trust its&nbsp;<em>own&nbsp;eyes?</em>
     </h1>
     <p class="deck">
-      Teaching a social robot to notice when it is poorly positioned to read a face — and to act on that self&#8209;assessment.
+      Teaching a social robot to notice when it is poorly positioned to read a face, and to act on that self&#8209;assessment.
     </p>
 
     <div class="byline">
@@ -55,7 +55,7 @@
     <div class="section-num"><span class="bar"></span>TL;DR</div>
     <p class="lede">
       A service robot reads a face from whatever vantage point it happens to have. When the person is far away
-      or turned aside, the face region shrinks to a handful of pixels — yet the recognition model keeps returning
+      or turned aside, the face region shrinks to a handful of pixels, yet the recognition model keeps returning
       <em>confident</em> answers. This work builds a geometry&#8209;aware reliability signal so the robot can tell
       <em>why</em> its own reading might be wrong, and then <b>trust it</b>, <b>reposition</b>, or <b>fall back</b>
       to other cues.
@@ -120,7 +120,7 @@
         <div class="signal-symbol">C<sub>det</sub></div>
         <div class="signal-body">
           <h3>Face detection confidence</h3>
-          <p>Is a face observable in this frame? Isolates environmental failure &mdash; mask, glare, occlusion.</p>
+          <p>Is a face observable in this frame? Isolates environmental failure: mask, glare, or occlusion.</p>
         </div>
       </article>
 
@@ -148,7 +148,7 @@
       </p>
       <p>
         At <b>8&nbsp;m</b>, the same 60° of yaw becomes catastrophic. The face can no longer spare
-        the information loss — and the softmax gives no warning.
+        the information loss, and the softmax gives no warning.
       </p>
       <p>
         We call this the <span class="hi">information capacity effect</span>. It makes a geometry&#8209;conditioned
@@ -165,20 +165,37 @@
     <div class="section-num"><span class="bar"></span>04 &nbsp;·&nbsp; Reliability surface <span class="mono-inline">s(d, θ)</span></div>
     <h2 class="sec-title">A map of <em>when</em> a reading is trustworthy.</h2>
 
-    <figure class="fig-polar">
-      <img src="assets/polar_reliability.png" alt="Polar heatmap of the reliability score s as a function of distance and yaw. Green near the centre indicates trustworthy viewpoints; red at the outer-upper edge indicates blind spots.">
+    <figure class="fig-compare">
+      <div class="compare-grid">
+        <div class="compare-panel panel-bad">
+          <div class="verdict">
+            <span class="verdict-badge bad">✕ Bad model</span>
+            <span class="verdict-note">Marginal: no interaction term</span>
+          </div>
+          <img src="assets/light_marginal.png" alt="Polar heatmap of the marginal reliability model. Green is confined to a narrow central band around zero yaw; red dominates the rest of the surface, even at short distance.">
+        </div>
+        <div class="compare-panel panel-good">
+          <div class="verdict">
+            <span class="verdict-badge good">✓ Good model</span>
+            <span class="verdict-note">Interaction: the one we fit</span>
+          </div>
+          <img src="assets/light_interaction.png" alt="Polar heatmap of the interaction reliability model. A wide green 'trust cone' extends out to 8 m near zero yaw, narrowing as yaw increases; red fills the far-yaw region.">
+        </div>
+      </div>
       <figcaption>
-        <b>Fig. 1 — Reliability score s(d, θ) as a polar surface.</b>
-        Green wedges mark viewpoints the robot can trust; gold wedges are borderline; red wedges
-        are blind spots where the face is no longer informative enough for FER to be meaningful.
+        <b>Fig. 1. Reliability score s(d, θ) as a polar surface, with and without the interaction term.</b>
+        Both panels plot the same score over the same grid. The <b>marginal</b> model (left) assumes distance and
+        yaw degrade independently; it underpredicts reliability at short distance and overpredicts it at large yaw.
+        The <b>interaction</b> model (right) adds a β<sub>3</sub>·d·θ² term and produces a green "trust cone" that is wide at
+        2 m and narrows as the robot steps back, which is what we actually observe.
       </figcaption>
     </figure>
 
     <figure class="fig-vector">
       <img src="assets/effective_slope.png" alt="Two-panel figure. Left: contour plot of the reliability score s(d, yaw) with gradient arrows pointing towards higher reliability. Right: the effective distance sensitivity (β1 plus β3·yaw-squared) plotted against yaw, showing that the penalty for each additional metre of distance grows sharply with yaw angle.">
       <figcaption>
-        <b>Fig. 2 — Why the robot should turn before it steps.</b> Left: the reliability contours and gradient field &nabla;s &mdash;
-        moving <em>along</em> the contours (i.e., reducing yaw first) almost always beats stepping closer along a fixed yaw.
+        <b>Fig. 2. Why the robot should turn before it steps.</b> Left: the reliability contours and gradient field &nabla;s.
+        Moving <em>along</em> the contours (i.e., reducing yaw first) almost always beats stepping closer along a fixed yaw.
         Right: the effective distance slope grows sharply with yaw, quantifying the information&#8209;capacity effect.
         <a class="pdf-link" href="files/effective_slope.pdf" target="_blank" rel="noopener">Download PDF ↗</a>
       </figcaption>
@@ -227,7 +244,7 @@
     <figure class="fig-vector fig-accuracy">
       <img src="assets/accuracy_surface.png" alt="Two heatmaps side by side. Observed accuracy (left) and predicted accuracy from the GLM (right), both as a function of distance (2 to 8 metres) and yaw angle (5 to 85 degrees). Green cells at short distance and low yaw, red cells at 8 metres and 85 degrees. R-squared 0.962.">
       <figcaption>
-        <b>Fig. 3 — Observed vs. predicted FER accuracy across the (d, θ) grid.</b>
+        <b>Fig. 3. Observed vs. predicted FER accuracy across the (d, θ) grid.</b>
         The four-parameter GLM reproduces the empirical surface at R² = 0.962, including the
         sharp drop-off in the upper-right corner where distance and yaw compound.
         <a class="pdf-link" href="files/accuracy_surface.pdf" target="_blank" rel="noopener">Download PDF ↗</a>
@@ -306,7 +323,7 @@
 <section class="section paper">
   <div class="inset">
     <div class="section-num"><span class="bar"></span>08 &nbsp;·&nbsp; Read the preliminary manuscript</div>
-    <h2 class="sec-title">The full writeup — methods, dataset, and validation.</h2>
+    <h2 class="sec-title">The full writeup: methods, dataset, and validation.</h2>
 
     <p class="paper-note">
       A working draft of the preliminary manuscript is available for reading or download below.
@@ -349,7 +366,7 @@
 
     <p class="behind-note">
       These are <b>single&#8209;subject pilot recordings</b> from the reliability&#8209;surface experiment.
-      They are unedited, not especially cinematic, and included here in the interest of transparency —
+      They are unedited, not especially cinematic, and included here in the interest of transparency,
       so you can see the two extremes of the (distance, yaw) grid in motion.
     </p>
 
@@ -384,7 +401,7 @@
         </video>
         <figcaption>
           <div class="video-meta"><b>6 m · 60° yaw</b> &nbsp;·&nbsp; oblique</div>
-          <div class="video-sub">Self&#8209;occlusion compounds with reduced pixel count — the model's confidence becomes misleading.</div>
+          <div class="video-sub">Self&#8209;occlusion compounds with reduced pixel count; the model's confidence becomes misleading.</div>
         </figcaption>
       </figure>
     </div>
@@ -399,7 +416,7 @@
       <div class="foot-block">
         <h4>About this project</h4>
         <p>
-          <b>Decoding the Unspoken</b> — PhD project under Dr. Trung D. Ngo at the More-Than-One Lab,
+          <b>Decoding the Unspoken.</b> PhD project under Dr. Trung D. Ngo at the More-Than-One Lab,
           Faculty of Sustainable Design Engineering, University of Prince Edward Island.
         </p>
       </div>
@@ -419,7 +436,7 @@
           <div class="brand-sub">Faculty of Sustainable<br>Design Engineering</div>
         </div>
         <p class="foot-fineprint">
-          © 2026 M. Soroush Izadan. Late&#8209;breaking findings — manuscript in preparation.
+          © 2026 M. Soroush Izadan. Late&#8209;breaking findings; manuscript in preparation.
         </p>
       </div>
 
